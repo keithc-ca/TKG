@@ -12,28 +12,25 @@
 # limitations under the License.
 ##############################################################################
 
-#
-# If AUTO_DETECT is turned on, compile and execute envDetector in build_envInfo.xml.
-# Otherwise, call makeGen.mk
-#
-
-.PHONY: testconfig
+# If AUTO_DETECT is enabled, compile and execute EnvDetector in TestKitGen.jar,
+# otherwise, just call makeGen.mk.
 
 ifndef TEST_JDK_HOME
 $(error Please provide TEST_JDK_HOME value.)
-else
-export TEST_JDK_HOME:=$(subst \,/,$(TEST_JDK_HOME))
 endif
+export TEST_JDK_HOME := $(subst \,/,$(TEST_JDK_HOME))
 
-testconfig:
-	ant -f ./scripts/build_tools.xml -DTEST_JDK_HOME=$(TEST_JDK_HOME)
+.PHONY : testconfig
+testconfig :
+	ant -f scripts/build_tools.xml -DTEST_JDK_HOME=$(TEST_JDK_HOME)
 ifneq ($(AUTO_DETECT), false)
-	@echo "AUTO_DETECT is set to true"
-	${TEST_JDK_HOME}/bin/java -cp ./bin/TestKitGen.jar org.openj9.envInfo.EnvDetector JavaInfo
+	@echo "AUTO_DETECT is enabled"
+	${TEST_JDK_HOME}/bin/java -cp bin/TestKitGen.jar org.openj9.envInfo.EnvDetector JavaInfo
 else
-	@echo "AUTO_DETECT is set to false"
+	@echo "AUTO_DETECT is disabled"
 endif
 	$(MAKE) -f makeGen.mk AUTO_DETECT=$(AUTO_DETECT)
 
-clean:
-	ant -f ./scripts/build_tools.xml clean
+.PHONY : clean
+clean :
+	ant -f scripts/build_tools.xml clean

@@ -11,7 +11,6 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 package org.testKitGen;
 
 import java.util.ArrayList;
@@ -20,11 +19,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class TestInfo {
+
 	private Element testEle;
 	private boolean valid;
 	private String testCaseName;
@@ -45,14 +46,14 @@ public class TestInfo {
 		this.testCaseName = null;
 		this.command = null;
 		this.platformRequirements = null;
-		this.vars = new ArrayList<Variation>();
+		this.vars = new ArrayList<>();
 		this.aotOptions = "";
 		this.iterations = Integer.parseInt(Options.getIterations());
-		this.capabilities = new HashMap<String, String>();
+		this.capabilities = new HashMap<>();
 		this.levelStr = "";
-		this.levels = new ArrayList<String>();
-		this.groups = new ArrayList<String>();
-		this.types = new ArrayList<String>();
+		this.levels = new ArrayList<>();
+		this.groups = new ArrayList<>();
+		this.types = new ArrayList<>();
 		this.disabledReasons = null;
 	}
 
@@ -146,15 +147,8 @@ public class TestInfo {
 		return valid;
 	}
 
-	private String joinStrList(List<String> list) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < list.size(); i++) {
-			sb.append(list.get(i));
-			if (i != list.size() - 1) {
-				sb.append("\t");
-			}
-		}
-		return sb.toString();
+	private static String joinStrList(List<String> list) {
+		return list.stream().collect(Collectors.joining(" "));
 	}
 
 	private void validate() {
@@ -260,4 +254,5 @@ public class TestInfo {
 	public String[] getDisabledReasons() {
 		return this.disabledReasons;
 	}
+
 }

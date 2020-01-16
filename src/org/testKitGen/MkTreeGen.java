@@ -21,6 +21,7 @@ import java.util.List;
 public class MkTreeGen {
 
 	private MkTreeGen() {
+		super();
 	}
 
 	public static void start() {
@@ -78,6 +79,8 @@ public class MkTreeGen {
 			mg.start();
 			return true;
 		}
+
 		return false;
 	}
+
 }

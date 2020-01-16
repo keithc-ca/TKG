@@ -11,37 +11,38 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 package org.openj9.envInfo;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.nio.file.*;
 import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class MachineInfo {
-	private static final int _1 = 1;
-	public static String UNAME_CMD = "uname -a";
-	public static String SYS_ARCH_CMD = "uname -m";
-	public static String PROC_ARCH_CMD = "uname -p";
+
+	public static final String UNAME_CMD = "uname -a";
+	public static final String SYS_ARCH_CMD = "uname -m";
+	public static final String PROC_ARCH_CMD = "uname -p";
 	public static final String ULIMIT_CMD = "ulimit -a";
 
-	public static String INSTALLED_MEM_CMD = "grep MemTotal /proc/meminfo | awk '{print $2}";
-	public static String FREE_MEM_CMD = "grep MemFree /proc/meminfo | awk '{print $2}";
-	public static String CPU_CORES_CMD = "cat /proc/cpuinfo | grep processor | wc -l";
+	public static final String INSTALLED_MEM_CMD = "grep MemTotal /proc/meminfo | awk '{print $2}";
+	public static final String FREE_MEM_CMD = "grep MemFree /proc/meminfo | awk '{print $2}";
+	public static final String CPU_CORES_CMD = "cat /proc/cpuinfo | grep processor | wc -l";
 
-	public static String NUMA_CMD = "numactl --show | grep 'No NUMA support available on this system";
-	public static String SYS_VIRT_CMD = "";
+	public static final String NUMA_CMD = "numactl --show | grep 'No NUMA support available on this system";
+	public static final String SYS_VIRT_CMD = "";
 
 	// Software
-	public static String SYS_OS_CMD = "uname -s";
-	public static String KERNEL_VERSION_CMD = "uname -r";
-	public static String GCC_VERSION_CMD = "gcc -dumpversion";
+	public static final String SYS_OS_CMD = "uname -s";
+	public static final String KERNEL_VERSION_CMD = "uname -r";
+	public static final String GCC_VERSION_CMD = "gcc -dumpversion";
 
 	public static final String XLC_VERSION_CMD = "xlC -qversion | grep 'Version' ";
 	public static final String GDB_VERSION_CMD = "gdb --version | head -1"; // debugger on Linux
-	public static String LLDB_VERSION_CMD = "lldb --version"; // debugger on Darwin/Mac
+	public static final String LLDB_VERSION_CMD = "lldb --version"; // debugger on Darwin/Mac
 	public static final String GCLIBC_VERSION_CMD = "ldd --version | head -1";
 
 	// Console
@@ -70,11 +71,25 @@ public class MachineInfo {
 	String javaVersion = "";
 
 	public String toString() {
-		return "\nuname: " + uname + "\ncpuCores: " + cpuCores + "\nsysArch: " + sysArch + "\nprocArch: " + procArch
-				+ "\nsysOS: " + sysOS + "\nulimit: " + ulimit + "\n" + "\nvmVendor: " + vmVendor + "\nvmVersion: "
-				+ vmVersion + "\nspecVendor: " + specVendor + "\nspecVersion: " + specVersion + "\njavaVersion: "
-				+ javaVersion + "\n" + "\nTotal memory (bytes): " + totalMemory + "\nFree memory (bytes): " + freeMemory
-				+ "\n";
+		String newline = System.lineSeparator();
+
+		return newline //
+				+ "uname: " + uname + newline //
+				+ "cpuCores: " + cpuCores + newline //
+				+ "sysArch: " + sysArch + newline //
+				+ "procArch: " + procArch + newline //
+				+ "sysOS: " + sysOS + newline //
+				+ "ulimit: " + ulimit + newline //
+				+ newline //
+				+ "vmVendor: " + vmVendor + newline // 
+				+ "vmVersion: " + vmVersion + newline //
+				+ "specVendor: " + specVendor + newline //
+				+ "specVersion: " + specVersion + newline //
+				+ "javaVersion: " + javaVersion + newline //
+				+ newline //
+				+ "Total memory (bytes): " + totalMemory + newline //
+				+ "Free memory (bytes): " + freeMemory + newline //
+		;
 	}
 
 	public long getFreeMemory() {
@@ -230,10 +245,12 @@ public class MachineInfo {
 	}
 
 	public void getRuntimeInfo() {
-		setVmVendor(ManagementFactory.getRuntimeMXBean().getVmVendor());
-		setVmVersion(ManagementFactory.getRuntimeMXBean().getVmVersion());
-		setSpecVendor(ManagementFactory.getRuntimeMXBean().getSpecVendor());
-		setSpecVersion(ManagementFactory.getRuntimeMXBean().getSpecVersion());
+		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+
+		setVmVendor(runtimeMXBean.getVmVendor());
+		setVmVersion(runtimeMXBean.getVmVersion());
+		setSpecVendor(runtimeMXBean.getSpecVendor());
+		setSpecVersion(runtimeMXBean.getSpecVersion());
 		setJavaVersion(System.getProperty("java.version"));
 
 		setFreeMemory(Runtime.getRuntime().freeMemory());
@@ -242,9 +259,8 @@ public class MachineInfo {
 
 	public void getMachineInfo(String command) {
 		try {
-			Process proc = null;
-			// ulimit needs to be invoked via shell with -c option for it to work on all
-			// platforms
+			Process proc;
+			// ulimit needs to be invoked via shell with -c option for it to work on all platforms
 			if (command.equals(MachineInfo.ULIMIT_CMD)) {
 				proc = Runtime.getRuntime().exec(new String[] { "bash", "-c", MachineInfo.ULIMIT_CMD });
 			} else {
@@ -292,4 +308,5 @@ public class MachineInfo {
 		System.out.println("Free space (bytes): " + file.getFreeSpace());
 		System.out.println("Usable space (bytes): " + file.getUsableSpace());
 	}
+
 }

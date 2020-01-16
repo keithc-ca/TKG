@@ -11,13 +11,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 package org.testKitGen;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.Arrays;
 
 public final class Constants {
 	public static final String PLAYLIST = "playlist.xml";
@@ -28,9 +27,6 @@ public final class Constants {
 	public static final String UTILSMK = "utils.mk";
 	public static final String COUNTMK = "count.mk";
 	public static final String SETTINGSMK = "settings.mk";
-	public static final String HEADERCOMMENTS = "########################################################\n"
-			+ "# This is an auto generated file. Please do NOT modify!\n"
-			+ "########################################################\n\n";
 	public static final List<String> ALLGROUPS = Arrays.asList("functional", "openjdk", "external", "perf", "jck",
 			"system");
 	public static final List<String> ALLIMPLS = Arrays.asList("openj9", "ibm", "hotspot", "sap");

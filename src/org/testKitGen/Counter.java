@@ -11,11 +11,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 package org.testKitGen;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,30 +22,43 @@ import java.util.List;
 import java.util.Map;
 
 public class Counter {
-	private static Map<String, Integer> count = new HashMap<String, Integer>();
+
+	private static Map<String, Integer> count = new HashMap<>();
+
 	private static String countmk = Options.getProjectRootDir() + "/TKG/" + Constants.COUNTMK;
 
-	private Counter(Options op) {
+	private Counter() {
+		super();
 	}
 
 	public static void generateFile() {
-		FileWriter f;
-		try {
-			f = new FileWriter(countmk);
-			f.write(Constants.HEADERCOMMENTS);
+		String newline = System.lineSeparator();
 
+		try (Writer file = UtilsGen.openWithHeader(countmk)) {
 			List<String> targetCountKeys = new ArrayList<>(count.keySet());
 			Collections.sort(targetCountKeys);
 
-			f.write("_GROUPTARGET = $(firstword $(MAKECMDGOALS))\n\n");
-			f.write("GROUPTARGET = $(patsubst _%,%,$(_GROUPTARGET))\n\n");
+			file.write("_GROUPTARGET := $(firstword $(MAKECMDGOALS))");
+			file.write(newline);
+
+			file.write("GROUPTARGET := $(patsubst _%,%,$(_GROUPTARGET))");
+			file.write(newline);
+
 			for (String key : targetCountKeys) {
-				f.write("ifeq ($(GROUPTARGET)," + key + ")\n");
-				f.write("\tTOTALCOUNT := " + count.get(key) + "\n");
-				f.write("endif\n\n");
+				file.write("ifeq ($(GROUPTARGET),");
+				file.write(key);
+				file.write(")");
+				file.write(newline);
+
+				file.write("  TOTALCOUNT := ");
+				file.write(count.get(key));
+				file.write(newline);
+
+				file.write("endif");
+				file.write(newline);
 			}
 
-			f.close();
+			file.write(newline);
 
 			System.out.println();
 			System.out.println("Generated " + countmk);
@@ -59,4 +71,5 @@ public class Counter {
 	public static void add(String key, int value) {
 		count.put(key, count.getOrDefault(key, 0) + value);
 	}
+
 }

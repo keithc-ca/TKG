@@ -1,1 +1,6 @@
 /bin/
+
+/autoGenEnv.mk
+/count.mk
+/dependencies.mk
+/machineConfigure.mk

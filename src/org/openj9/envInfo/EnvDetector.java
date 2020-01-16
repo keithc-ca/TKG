@@ -11,17 +11,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 package org.openj9.envInfo;
 
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.IOException;
-import java.io.BufferedWriter;
+import java.io.Writer;
+
+import org.testKitGen.UtilsGen;
 
 public class EnvDetector {
-	static boolean isMachineInfo = false;
-	static boolean isJavaInfo = false;
 
 	public static void main(String[] args) {
 		parseArgs(args);
@@ -30,6 +27,7 @@ public class EnvDetector {
 	private static void parseArgs(String[] args) {
 		for (int i = 0; i < args.length; i++) {
 			String option = args[i].toLowerCase();
+
 			if (option.equals("machineinfo")) {
 				getMachineInfo();
 			} else if (option.equals("javainfo")) {
@@ -46,30 +44,32 @@ public class EnvDetector {
 		String SPECInfo = envDetection.getSPEC();
 		int javaVersionInfo = envDetection.getJDKVersion();
 		String javaImplInfo = envDetection.getJDKImpl();
+
 		if (SPECInfo == null || javaVersionInfo == -1 || javaImplInfo == null) {
 			System.exit(1);
 		}
-		String SPECvalue = "DETECTED_SPEC=" + SPECInfo + "\n";
-		String JDKVERSIONvalue = "DETECTED_JDK_VERSION=" + javaVersionInfo + "\n";
-		String JDKIMPLvalue = "DETECTED_JDK_IMPL=" + javaImplInfo + "\n";
 
 		/**
 		 * autoGenEnv.mk file will be created to store auto detected java info.
 		 */
-		BufferedWriter output = null;
-		try {
-			output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("autoGenEnv.mk")));
-			output.write("########################################################\n");
-			output.write("# This is an auto generated file. Please do NOT modify!\n");
-			output.write("########################################################\n");
-			output.write(SPECvalue);
-			output.write(JDKVERSIONvalue);
-			output.write(JDKIMPLvalue);
-			output.close();
+		try (Writer output = UtilsGen.openWithHeader("autoGenEnv.mk")) {
+			String newline = System.lineSeparator();
+
+			output.write("DETECTED_SPEC := ");
+			output.write(SPECInfo);
+			output.write(newline);
+
+			output.write("DETECTED_JDK_VERSION := ");
+			output.write(javaVersionInfo);
+			output.write(newline);
+
+			output.write("DETECTED_JDK_IMPL := ");
+			output.write(javaImplInfo);
+			output.write(newline);
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.exit(1);
 		}
-
 	}
 
 	private static void getMachineInfo() {
@@ -84,6 +84,7 @@ public class EnvDetector {
 
 		machineInfo.getRuntimeInfo();
 		machineInfo.getSpaceInfo("");
+
 		System.out.println(machineInfo);
 	}
 }

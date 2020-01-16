@@ -11,19 +11,22 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 package org.testKitGen;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.Writer;
 import java.util.List;
+import java.util.function.Function;
 
 public class UtilsGen {
+
 	private static String utilsmk = Options.getProjectRootDir() + "/TKG/" + Constants.UTILSMK;
+
 	private static String dependmk = Options.getProjectRootDir() + "/TKG/" + Constants.DEPENDMK;
 
 	private UtilsGen() {
+		super();
 	}
 
 	public static void start() {
@@ -37,101 +40,130 @@ public class UtilsGen {
 	}
 
 	private static void genDependMk() throws IOException {
-		FileWriter f = new FileWriter(dependmk);
+		try (Writer file = openWithHeader(dependmk)) {
+			String[] heads = new String[] { "", "disabled.", "echo.disabled." };
 
-		f.write(Constants.HEADERCOMMENTS);
+			for (String head : heads) {
+				for (String level : Constants.ALLLEVELS) {
+					for (String group : Constants.ALLGROUPS) {
+						String hlgKey = head + level + '.' + group;
 
-		List<String> allDisHead = Arrays.asList("", "disabled.", "echo.disabled.");
-		for (String eachDisHead : allDisHead) {
-			for (String eachLevel : Constants.ALLLEVELS) {
-				for (String eachGroup : Constants.ALLGROUPS) {
-					String hlgKey = eachDisHead + eachLevel + '.' + eachGroup;
-					f.write(hlgKey + ":");
-					for (String eachType : Constants.ALLTYPES) {
-						String hlgtKey = eachDisHead + eachLevel + '.' + eachGroup + '.' + eachType;
-						f.write(" \\\n" + hlgtKey);
+						genDepend(file, hlgKey, Constants.ALLTYPES, type -> hlgKey + '.' + type);
 					}
-					f.write("\n\n.PHONY: " + hlgKey + "\n\n");
 				}
-			}
 
-			for (String eachGroup : Constants.ALLGROUPS) {
-				for (String eachType : Constants.ALLTYPES) {
-					String gtKey = eachDisHead + eachGroup + '.' + eachType;
-					f.write(gtKey + ":");
-					for (String eachLevel : Constants.ALLLEVELS) {
-						String lgtKey = eachDisHead + eachLevel + '.' + eachGroup + '.' + eachType;
-						f.write(" \\\n" + lgtKey);
+				for (String group : Constants.ALLGROUPS) {
+					for (String type : Constants.ALLTYPES) {
+						String hgtKey = head + group + '.' + type;
+
+						genDepend(file, hgtKey, Constants.ALLLEVELS, level -> head + level + '.' + group + '.' + type);
 					}
-					f.write("\n\n.PHONY: " + gtKey + "\n\n");
 				}
-			}
 
-			for (String eachType : Constants.ALLTYPES) {
-				for (String eachLevel : Constants.ALLLEVELS) {
-					String ltKey = eachDisHead + eachLevel + '.' + eachType;
-					f.write(ltKey + ":");
-					for (String eachGroup : Constants.ALLGROUPS) {
-						String lgtKey = eachDisHead + eachLevel + '.' + eachGroup + '.' + eachType;
-						f.write(" \\\n" + lgtKey);
+				for (String type : Constants.ALLTYPES) {
+					for (String level : Constants.ALLLEVELS) {
+						String hltKey = head + level + '.' + type;
+
+						genDepend(file, hltKey, Constants.ALLGROUPS, group -> head + level + '.' + group + '.' + type);
 					}
-					f.write("\n\n.PHONY: " + ltKey + "\n\n");
 				}
-			}
 
-			for (String eachLevel : Constants.ALLLEVELS) {
-				String lKey = eachDisHead + eachLevel;
-				f.write(lKey + ":");
-				for (String eachGroup : Constants.ALLGROUPS) {
-					f.write(" \\\n" + eachDisHead + eachLevel + '.' + eachGroup);
+				for (String level : Constants.ALLLEVELS) {
+					String hlKey = head + level;
+
+					genDepend(file, hlKey, Constants.ALLGROUPS, group -> hlKey + '.' + group);
 				}
-				f.write("\n\n.PHONY: " + lKey + "\n\n");
-			}
 
-			for (String eachGroup : Constants.ALLGROUPS) {
-				String gKey = eachDisHead + eachGroup;
-				f.write(gKey + ":");
-				for (String eachLevel : Constants.ALLLEVELS) {
-					f.write(" \\\n" + eachDisHead + eachLevel + '.' + eachGroup);
+				for (String group : Constants.ALLGROUPS) {
+					String hgKey = head + group;
+
+					genDepend(file, hgKey, Constants.ALLLEVELS, level -> head + level + '.' + group);
 				}
-				f.write("\n\n.PHONY: " + gKey + "\n\n");
-			}
 
-			for (String eachType : Constants.ALLTYPES) {
-				String tKey = eachDisHead + eachType;
-				f.write(tKey + ":");
-				for (String eachLevel : Constants.ALLLEVELS) {
-					f.write(" \\\n" + eachDisHead + eachLevel + '.' + eachType);
+				for (String type : Constants.ALLTYPES) {
+					String htKey = head + type;
+
+					genDepend(file, htKey, Constants.ALLLEVELS, level -> head + level + '.' + type);
 				}
-				f.write("\n\n.PHONY: " + tKey + "\n\n");
-			}
 
-			String allKey = eachDisHead + "all";
-			f.write(allKey + ":");
-			for (String eachLevel : Constants.ALLLEVELS) {
-				f.write(" \\\n" + eachDisHead + eachLevel);
+				genDepend(file, head + "all", Constants.ALLLEVELS, level -> head + level);
 			}
-			f.write("\n\n.PHONY: " + allKey + "\n\n");
 		}
-
-		f.close();
 
 		System.out.println();
 		System.out.println("Generated " + dependmk);
 	}
 
-	private static void genUtilsMk() throws IOException {
-		FileWriter f = new FileWriter(utilsmk);
+	private static void genDepend(Writer file, String target, List<String> keys, Function<String, String> mapper)
+			throws IOException {
+		String newline = System.lineSeparator();
 
-		f.write(Constants.HEADERCOMMENTS);
-		f.write("PLATFORM=\n");
-		String plat = ModesDictionary.getPlat(Options.getSpec());
-		if (!plat.isEmpty()) {
-			f.write("ifeq" + " ($(SPEC)," + Options.getSpec() + ")\n\tPLATFORM=" + plat + "\nendif\n\n");
+		file.write(newline);
+
+		file.write(".PHONY : ");
+		file.write(target);
+		file.write(newline);
+
+		file.write(target);
+		file.write(" :");
+
+		for (String key : keys) {
+			file.write(" \\");
+			file.write(newline);
+
+			file.write("\t");
+			file.write(mapper.apply(key));
 		}
 
-		f.close();
+		file.write(newline);
+	}
+
+	public static Writer openWithHeader(String fileName) throws IOException {
+		Writer file = new FileWriter(fileName);
+		String newline = System.lineSeparator();
+
+		file.write("########################################################");
+		file.write(newline);
+		file.write("# This is an auto generated file. Please do NOT modify!");
+		file.write(newline);
+		file.write("########################################################");
+		file.write(newline);
+
+		return file;
+	}
+
+	private static void genUtilsMk() throws IOException {
+		String newline = System.lineSeparator();
+
+		try (Writer file = openWithHeader(utilsmk)) {
+			String spec = Options.getSpec();
+			String plat = ModesDictionary.getPlat(spec);
+
+			if (plat.isEmpty()) {
+				file.write("PLATFORM :=");
+				file.write(newline);
+			} else {
+				file.write("ifeq" + " ($(SPEC)," + spec + ")");
+				file.write(newline);
+
+				file.write("  PLATFORM := " + plat);
+				file.write(newline);
+
+				file.write("else");
+				file.write(newline);
+
+				file.write("  PLATFORM :=");
+				file.write(newline);
+
+				file.write("endif");
+				file.write(newline);
+			}
+
+			file.write(newline);
+		}
+
 		System.out.println();
 		System.out.println("Generated " + utilsmk);
 	}
+
 }

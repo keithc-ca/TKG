@@ -11,12 +11,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
-
 package org.testKitGen;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,26 +74,26 @@ public class MkGen {
 	}
 
 	private void writeVars() throws IOException {
-		FileWriter f = new FileWriter(makeFile);
-		String realtiveRoot = "";
-		int subdirlevel = currentdirs.size();
-		if (subdirlevel == 0) {
-			realtiveRoot = ".";
-		} else {
-			for (int i = 1; i <= subdirlevel; i++) {
-				realtiveRoot = realtiveRoot + ((i == subdirlevel) ? ".." : "..$(D)");
+		try (Writer file = UtilsGen.openWithHeader(makeFile)) {
+			String newline = System.lineSeparator();
+
+			file.write("D := /");
+			file.write(newline);
+
+			file.write("TEST_ROOT ?= ");
+			file.write(Options.getProjectRootDir());
+			file.write(newline);
+
+			file.write("SUBDIRS :=");
+			for (String dir : subdirs) {
+				file.write(" ");
+				file.write(dir);
 			}
+			file.write(newline);
+
+			file.write("include $(TEST_ROOT)$(D)TKG$(D)" + Constants.SETTINGSMK);
+			file.write(newline);
 		}
-
-		f.write(Constants.HEADERCOMMENTS + "\n");
-		f.write("D=/\n\n");
-		f.write("ifndef TEST_ROOT\n");
-		f.write("\tTEST_ROOT := " + Options.getProjectRootDir() + "\n");
-
-		f.write("endif\n\n");
-		f.write("SUBDIRS = " + String.join(" ", subdirs) + "\n\n");
-		f.write("include $(TEST_ROOT)$(D)TKG$(D)" + Constants.SETTINGSMK + "\n\n");
-		f.close();
 	}
 
 	private void processPlaylist() throws SAXException, IOException, ParserConfigurationException {
@@ -167,14 +167,14 @@ public class MkGen {
 						f.write("ifeq ($(" + condition_capsReqs + "), " + testInfo.getCapabilities().get(cKey) + ")\n");
 					}
 				}
-	
+
 				f.write(indent + "$(TEST_SETUP);\n");
-	
+
 				f.write(indent + "@echo \"variation: " + var.getVariation()
 						+ "\" | tee -a $(Q)$(TESTOUTPUT)$(D)TestTargetResult$(Q);\n");
 				f.write(indent
 						+ "@echo \"JVM_OPTIONS: $(JVM_OPTIONS)\" | tee -a $(Q)$(TESTOUTPUT)$(D)TestTargetResult$(Q);\n");
-	
+
 				f.write(indent + "{ ");
 				for (int k = 1; k <= testInfo.getIterations(); k++) {
 					f.write("itercnt=" + k + "; \\\n" + indent + "$(MKTREE) $(REPORTDIR); \\\n" + indent
@@ -185,9 +185,9 @@ public class MkGen {
 					}
 				}
 				f.write(" } 2>&1 | tee -a $(Q)$(TESTOUTPUT)$(D)TestTargetResult$(Q);\n");
-	
+
 				f.write(indent + "$(TEST_TEARDOWN);\n");
-	
+
 				if (!capKeys.isEmpty()) {
 					Collections.sort(capKeys, Collections.reverseOrder());
 					for (String cKey : capKeys) {
@@ -338,4 +338,5 @@ public class MkGen {
 
 		f.close();
 	}
+
 }

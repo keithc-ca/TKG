@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <!--
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,12 +30,12 @@
 		<echo>============COMPILER SETTINGS============</echo>
 		<echo>===fork:                         yes</echo>
 		<echo>===debug:                        on</echo>
-		<javac srcdir="${src}" destdir="${build}" debug="true" fork="true" executable="${TEST_JDK_HOME}/bin/javac" includeAntRuntime="false" encoding="ISO-8859-1"/>
+		<javac srcdir="${src}" destdir="${build}" debug="true" fork="true" executable="${TEST_JDK_HOME}/bin/javac" includeAntRuntime="false" encoding="ISO-8859-1" />
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
 		<jar jarfile="${build}/TestKitGen.jar" filesonly="true">
-			<fileset dir="${build}"/>
+			<fileset dir="${build}" />
 		</jar>
 	</target>
 
@@ -44,6 +43,7 @@
 		<delete file="../autoGenEnv.mk" />
 		<delete file="../count.mk" />
 		<delete file="../dependencies.mk" />
+		<delete file="../machineConfigure.mk" />
 		<delete file="../utils.mk" />
 		<delete dir="${build}" />
 	</target>
