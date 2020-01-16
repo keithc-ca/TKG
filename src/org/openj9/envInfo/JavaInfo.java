@@ -18,7 +18,7 @@ public class JavaInfo {
 	private static String getAndPrintProperty(String name) {
 		String value = System.getProperty(name);
 
-		System.out.println("getAndPrintProperty('" + name + "')=" + value);
+		System.out.println("System.getProperty('" + name + "')=" + value);
 
 		return value;
 	}

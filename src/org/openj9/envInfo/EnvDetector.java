@@ -60,7 +60,7 @@ public class EnvDetector {
 			output.write(newline);
 
 			output.write("DETECTED_JDK_VERSION := ");
-			output.write(javaVersionInfo);
+			output.write(Integer.toString(javaVersionInfo));
 			output.write(newline);
 
 			output.write("DETECTED_JDK_IMPL := ");
