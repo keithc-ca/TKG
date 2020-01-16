@@ -51,7 +51,7 @@ public class Counter {
 				file.write(newline);
 
 				file.write("  TOTALCOUNT := ");
-				file.write(count.get(key));
+				file.write(count.get(key).toString());
 				file.write(newline);
 
 				file.write("endif");
