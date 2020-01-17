@@ -1,5 +1,6 @@
 /bin/
 /lib/
+/test_output_*
 
 /autoGenEnv.mk
 /count.mk
