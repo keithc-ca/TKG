@@ -20,51 +20,50 @@
 
 HOTSPOT_IMPLS=$(or hotspot,sap)
 
-ifneq ($(AUTO_DETECT), false) 
-    export SPEC:=$(DETECTED_SPEC)
+ifneq ($(AUTO_DETECT), false)
+  export SPEC:=$(DETECTED_SPEC)
 
-    ifndef JDK_VERSION
-        export JDK_VERSION:=$(DETECTED_JDK_VERSION)
-    else
-        ifneq ($(JDK_VERSION), $(DETECTED_JDK_VERSION))
-            $(error DETECTED_JDK_VERSION value is $(DETECTED_JDK_VERSION), settled JDK_VERSION value is $(JDK_VERSION). JDK_VERSION value does not match. Please reset or unset JDK_VERSION)
-        endif
+  ifndef JDK_VERSION
+    export JDK_VERSION:=$(DETECTED_JDK_VERSION)
+  else
+    ifneq ($(JDK_VERSION), $(DETECTED_JDK_VERSION))
+      $(error DETECTED_JDK_VERSION value is $(DETECTED_JDK_VERSION), settled JDK_VERSION value is $(JDK_VERSION). JDK_VERSION value does not match. Please reset or unset JDK_VERSION)
     endif
+  endif
 
-    ifndef JDK_IMPL
-        export JDK_IMPL:=$(DETECTED_JDK_IMPL)
-    else
-        ifneq ($(JDK_IMPL), $(DETECTED_JDK_IMPL))
-            ifneq ($(JDK_IMPL), sap)
-                $(error DETECTED_JDK_IMPL value is $(DETECTED_JDK_IMPL), settled JDK_IMPL value is $(JDK_IMPL). JDK_IMPL value does not match. Please reset or unset JDK_IMPL)
-            endif
-        endif
+  ifndef JDK_IMPL
+    export JDK_IMPL:=$(DETECTED_JDK_IMPL)
+  else
+    ifneq ($(JDK_IMPL), $(DETECTED_JDK_IMPL))
+      ifneq ($(JDK_IMPL), sap)
+        $(error DETECTED_JDK_IMPL value is $(DETECTED_JDK_IMPL), settled JDK_IMPL value is $(JDK_IMPL). JDK_IMPL value does not match. Please reset or unset JDK_IMPL)
+      endif
     endif
+  endif
 
-    ifndef JDK_VENDOR
-        export JDK_VENDOR:=$(DETECTED_JDK_VENDOR)
-    else
-        ifneq ($(JDK_VENDOR), $(DETECTED_JDK_VENDOR))
-            $(error DETECTED_JDK_VENDOR value is $(DETECTED_JDK_VENDOR), settled JDK_VENDOR value is $(JDK_VENDOR). JDK_VENDOR value does not match. Please reset or unset JDK_VENDOR)
-        endif
+  ifndef JDK_VENDOR
+    export JDK_VENDOR:=$(DETECTED_JDK_VENDOR)
+  else
+    ifneq ($(JDK_VENDOR), $(DETECTED_JDK_VENDOR))
+      $(error DETECTED_JDK_VENDOR value is $(DETECTED_JDK_VENDOR), settled JDK_VENDOR value is $(JDK_VENDOR). JDK_VENDOR value does not match. Please reset or unset JDK_VENDOR)
     endif
+  endif
 else
-    $(info AUTO_DETECT is set to false)
-    ifndef SPEC
-        export SPEC:=$(DETECTED_SPEC)
-        $(info Warning: No SPEC has been exported. Use auto detected SPEC=$(SPEC).)
-    endif
-    ifndef JDK_VERSION
-        export JDK_VERSION:=$(DETECTED_JDK_VERSION)
-        $(info Warning: No JDK_VERSION has been exported. Use auto detected JDK_VERSION=$(JDK_VERSION).)
-    endif
-    ifndef JDK_IMPL
-        export JDK_IMPL:=$(DETECTED_JDK_IMPL)
-        $(info Warning: No JDK_IMPL has been exported. Use auto detected JDK_IMPL=$(JDK_IMPL).)
-    endif
-    ifndef JDK_VENDOR
-        export JDK_VENDOR:=$(DETECTED_JDK_VENDOR)
-        $(info Warning: No JDK_VENDOR has been exported. Use auto detected JDK_VENDOR=$(JDK_VENDOR).)
-    endif
+  $(info AUTO_DETECT is set to false)
+  ifndef SPEC
+    export SPEC:=$(DETECTED_SPEC)
+    $(info Warning: No SPEC has been exported. Use auto detected SPEC=$(SPEC).)
+  endif
+  ifndef JDK_VERSION
+    export JDK_VERSION:=$(DETECTED_JDK_VERSION)
+    $(info Warning: No JDK_VERSION has been exported. Use auto detected JDK_VERSION=$(JDK_VERSION).)
+  endif
+  ifndef JDK_IMPL
+    export JDK_IMPL:=$(DETECTED_JDK_IMPL)
+    $(info Warning: No JDK_IMPL has been exported. Use auto detected JDK_IMPL=$(JDK_IMPL).)
+  endif
+  ifndef JDK_VENDOR
+    export JDK_VENDOR:=$(DETECTED_JDK_VENDOR)
+    $(info Warning: No JDK_VENDOR has been exported. Use auto detected JDK_VENDOR=$(JDK_VENDOR).)
+  endif
 endif
-

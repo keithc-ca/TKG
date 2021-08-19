@@ -16,7 +16,7 @@ D = /
 Q = "
 
 ifndef TEST_ROOT
-	TEST_ROOT := $(shell pwd)$(D)..
+  TEST_ROOT := $(shell pwd)$(D)..
 endif
 
 COMPILATION_OUTPUT=$(TEST_ROOT)$(D)TKG$(D)output_compilation

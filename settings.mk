@@ -49,89 +49,85 @@ include $(TEST_ROOT)$(D)TKG$(D)testEnv.mk
 include $(TEST_ROOT)$(D)TKG$(D)featureSettings.mk
 
 ifndef JDK_VERSION
-	export JDK_VERSION:=8
+  export JDK_VERSION:=8
 else
-	export JDK_VERSION:=$(JDK_VERSION)
+  export JDK_VERSION:=$(JDK_VERSION)
 endif
 
 ifndef TEST_JDK_HOME
-$(error Please provide TEST_JDK_HOME value.)
+  $(error Please provide TEST_JDK_HOME value.)
 else
-export TEST_JDK_HOME := $(subst \,/,$(TEST_JDK_HOME))
+  export TEST_JDK_HOME := $(subst \,/,$(TEST_JDK_HOME))
 endif
 
 ifndef JRE_IMAGE
-	ifneq (,$(findstring j2sdk-image,$(TEST_JDK_HOME)))
-	JRE_ROOT := $(TEST_JDK_HOME)
-	export JRE_IMAGE := $(subst j2sdk-image,j2re-image,$(JRE_ROOT))
-	endif
+  ifneq (,$(findstring j2sdk-image,$(TEST_JDK_HOME)))
+    JRE_ROOT := $(TEST_JDK_HOME)
+    export JRE_IMAGE := $(subst j2sdk-image,j2re-image,$(JRE_ROOT))
+  endif
 endif
 
 ifndef SPEC
-$(error Please provide SPEC that matches the current platform (e.g. SPEC=linux_x86-64))
+  $(error Please provide SPEC that matches the current platform (e.g. SPEC=linux_x86-64))
 else
-export SPEC:=$(SPEC)
+  export SPEC:=$(SPEC)
 endif
 
 # temporarily support both JAVA_IMPL and JDK_IMPL
 ifndef JDK_IMPL
-	ifndef JAVA_IMPL
-		export JDK_IMPL:=openj9
-	else
-		export JDK_IMPL:=$(JAVA_IMPL)
-	endif
+  ifndef JAVA_IMPL
+    export JDK_IMPL:=openj9
+  else
+    export JDK_IMPL:=$(JAVA_IMPL)
+  endif
 else
-	export JDK_IMPL:=$(JDK_IMPL)
+  export JDK_IMPL:=$(JDK_IMPL)
 endif
 
 export JDK_VENDOR:=$(JDK_VENDOR)
 
 ifndef JVM_VERSION
-	OPENJDK_VERSION = openjdk$(JDK_VERSION)
-
-ifeq (hotspot, $(JDK_IMPL))
-	JVM_VERSION = $(OPENJDK_VERSION)
-else 
-	JVM_VERSION = $(OPENJDK_VERSION)-$(JDK_IMPL)
-endif
-
-export JVM_VERSION:=$(JVM_VERSION)
+  OPENJDK_VERSION = openjdk$(JDK_VERSION)
+  ifeq (hotspot, $(JDK_IMPL))
+    JVM_VERSION = $(OPENJDK_VERSION)
+  else
+    JVM_VERSION = $(OPENJDK_VERSION)-$(JDK_IMPL)
+  endif
+  export JVM_VERSION:=$(JVM_VERSION)
 endif
 
 ifneq (,$(findstring win,$(SPEC)))
-P=;
-D=\\
-EXECUTABLE_SUFFIX=.exe
-RUN_SCRIPT="cmd /c" 
-RUN_SCRIPT_STRING=$(RUN_SCRIPT)
-SCRIPT_SUFFIX=.bat
-PROPS_DIR=props_win
+  P=;
+  D=\\
+  EXECUTABLE_SUFFIX=.exe
+  RUN_SCRIPT="cmd /c"
+  RUN_SCRIPT_STRING=$(RUN_SCRIPT)
+  SCRIPT_SUFFIX=.bat
+  PROPS_DIR=props_win
 endif
 
 # Environment variable OSTYPE is set to cygwin if running under cygwin.
 ifndef CYGWIN
-	OSTYPE?=$(shell echo $$OSTYPE)
-	ifeq ($(OSTYPE),cygwin)
-			CYGWIN:=1
-	else
-		CYGWIN:=0
-	endif
+  OSTYPE?=$(shell echo $$OSTYPE)
+  ifeq ($(OSTYPE),cygwin)
+    CYGWIN:=1
+  else
+    CYGWIN:=0
+  endif
 endif
 
 ifeq ($(CYGWIN),1)
-	TEST_ROOT := $(shell cygpath -w $(TEST_ROOT))
+  TEST_ROOT := $(shell cygpath -w $(TEST_ROOT))
 endif
 TEST_ROOT := $(subst \,/,$(TEST_ROOT))
 
 ifndef BUILD_ROOT
-BUILD_ROOT := $(TEST_ROOT)$(D)..$(D)jvmtest
-BUILD_ROOT := $(subst \,/,$(BUILD_ROOT))
+  BUILD_ROOT := $(TEST_ROOT)$(D)..$(D)jvmtest
+  BUILD_ROOT := $(subst \,/,$(BUILD_ROOT))
 endif
 
 JVM_TEST_ROOT = $(BUILD_ROOT)
 TEST_GROUP=level.*
-
-
 
 #######################################
 # Set OS, ARCH and BITS based on SPEC
@@ -143,25 +139,25 @@ ARCH_INFO:=$(word 2,$(WORD_LIST))
 BITS=bits.32
 ARCH=arch.$(ARCH_INFO)
 ifneq (,$(findstring 64,$(ARCH_INFO)))
-	BITS=bits.64
-	ifneq (,$(findstring -64,$(ARCH_INFO)))
-		ARCH:=arch.$(subst -64,,$(ARCH_INFO))
-	else
-		ARCH:=arch.$(subst 64,,$(ARCH_INFO))
-	endif
+  BITS=bits.64
+  ifneq (,$(findstring -64,$(ARCH_INFO)))
+    ARCH:=arch.$(subst -64,,$(ARCH_INFO))
+  else
+    ARCH:=arch.$(subst 64,,$(ARCH_INFO))
+  endif
 else
-	ifneq (,$(findstring 390,$(ARCH_INFO)))
-		BITS=bits.31
-	endif
+  ifneq (,$(findstring 390,$(ARCH_INFO)))
+    BITS=bits.31
+  endif
 endif
 
 ifneq ($(DEBUG),)
-$(info OS is set to $(OS), ARCH is set to $(ARCH) and BITS is set to $(BITS))
+  $(info OS is set to $(OS), ARCH is set to $(ARCH) and BITS is set to $(BITS))
 endif
 
 DEFAULT_EXCLUDE=d.*.$(SPEC),d.*.$(ARCH),d.*.$(OS),d.*.$(BITS),d.*.generic-all
 ifneq ($(DEBUG),)
-$(info DEFAULT_EXCLUDE is set to $(DEFAULT_EXCLUDE))
+  $(info DEFAULT_EXCLUDE is set to $(DEFAULT_EXCLUDE))
 endif
 
 JAVA_COMMAND:=$(Q)$(TEST_JDK_HOME)$(D)bin$(D)java$(Q)
@@ -186,14 +182,14 @@ CMDLINETESTER_RESJAR=$(Q)$(JVM_TEST_ROOT)$(D)functional$(D)cmdline_options_testr
 # testng report dir
 #######################################
 ifndef UNIQUEID
-	GETID := $(TEST_ROOT)$(D)TKG$(D)scripts$(D)getUniqueId.pl
-	export UNIQUEID := $(shell perl $(GETID) -v)
+  GETID := $(TEST_ROOT)$(D)TKG$(D)scripts$(D)getUniqueId.pl
+  export UNIQUEID := $(shell perl $(GETID) -v)
 endif
 TESTOUTPUT := $(TEST_ROOT)$(D)TKG$(D)output_$(UNIQUEID)
 ifeq ($(TEST_ITERATIONS), 1)
-	REPORTDIR_NQ = $(TESTOUTPUT)$(D)$@
+  REPORTDIR_NQ = $(TESTOUTPUT)$(D)$@
 else
-	REPORTDIR_NQ = $(TESTOUTPUT)$(D)$@_ITER_$$itercnt
+  REPORTDIR_NQ = $(TESTOUTPUT)$(D)$@_ITER_$$itercnt
 endif
 REPORTDIR = $(Q)$(REPORTDIR_NQ)$(Q)
 
@@ -203,16 +199,16 @@ REPORTDIR = $(Q)$(REPORTDIR_NQ)$(Q)
 RM_REPORTDIR=
 KEEP_REPORTDIR?=true
 ifeq ($(KEEP_REPORTDIR), false)
-	RM_REPORTDIR=$(RM) -r $(REPORTDIR);
+  RM_REPORTDIR=$(RM) -r $(REPORTDIR);
 endif
-ifeq ($(TEST_ITERATIONS), 1) 
-	TEST_STATUS=if [ $$? -eq 0 ] ; then $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_PASSED$(Q); $(ECHO) $(Q)$(Q); $(CD) $(TEST_ROOT); $(RM_REPORTDIR) else $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_FAILED$(Q); $(ECHO) $(Q)$(Q); fi
+ifeq ($(TEST_ITERATIONS), 1)
+  TEST_STATUS=if [ $$? -eq 0 ] ; then $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_PASSED$(Q); $(ECHO) $(Q)$(Q); $(CD) $(TEST_ROOT); $(RM_REPORTDIR) else $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_FAILED$(Q); $(ECHO) $(Q)$(Q); fi
 else
-	TEST_STATUS=if [ $$? -eq 0 ] ; then $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_PASSED(ITER_$$itercnt)$(Q); $(ECHO) $(Q)$(Q); $(CD) $(TEST_ROOT); $(RM_REPORTDIR) if [ $$itercnt -eq $(TEST_ITERATIONS) ] ; then $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_PASSED$(Q); $(ECHO) $(Q)$(Q); fi else $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_FAILED(ITER_$$itercnt)$(Q); $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_FAILED$(Q); $(ECHO) $(Q)$(Q); exit 1; fi
+  TEST_STATUS=if [ $$? -eq 0 ] ; then $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_PASSED(ITER_$$itercnt)$(Q); $(ECHO) $(Q)$(Q); $(CD) $(TEST_ROOT); $(RM_REPORTDIR) if [ $$itercnt -eq $(TEST_ITERATIONS) ] ; then $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_PASSED$(Q); $(ECHO) $(Q)$(Q); fi else $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_FAILED(ITER_$$itercnt)$(Q); $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$(Q); $(ECHO) $(Q)$@$(Q)$(Q)_FAILED$(Q); $(ECHO) $(Q)$(Q); exit 1; fi
 endif
 
 ifneq ($(DEBUG),)
-$(info TEST_STATUS is $(TEST_STATUS))
+  $(info TEST_STATUS is $(TEST_STATUS))
 endif
 TEST_SKIP_STATUS=$@_SKIPPED
 
@@ -221,7 +217,7 @@ TEST_SKIP_STATUS=$@_SKIPPED
 #######################################
 TEST_SETUP=@echo "Nothing to be done for setup."
 ifeq ($(JDK_IMPL), $(filter $(JDK_IMPL),openj9 ibm))
-	TEST_SETUP=$(JAVA_COMMAND) -Xshareclasses:destroyAll; $(JAVA_COMMAND) -Xshareclasses:groupAccess,destroyAll; echo "cache cleanup done"
+  TEST_SETUP=$(JAVA_COMMAND) -Xshareclasses:destroyAll; $(JAVA_COMMAND) -Xshareclasses:groupAccess,destroyAll; echo "cache cleanup done"
 endif
 
 #######################################
@@ -229,23 +225,23 @@ endif
 #######################################
 TEST_TEARDOWN=@echo "Nothing to be done for teardown."
 ifeq ($(JDK_IMPL), $(filter $(JDK_IMPL),openj9 ibm))
-	TEST_TEARDOWN=$(JAVA_COMMAND) -Xshareclasses:destroyAll; $(JAVA_COMMAND) -Xshareclasses:groupAccess,destroyAll; echo "cache cleanup done"
+  TEST_TEARDOWN=$(JAVA_COMMAND) -Xshareclasses:destroyAll; $(JAVA_COMMAND) -Xshareclasses:groupAccess,destroyAll; echo "cache cleanup done"
 endif
 
 #######################################
 # include configure makefile
 #######################################
 ifndef MACHINE_MK
--include $(JVM_TEST_ROOT)$(D)TKG$(D)machineConfigure.mk
+  -include $(JVM_TEST_ROOT)$(D)TKG$(D)machineConfigure.mk
 else
--include $(MACHINE_MK)$(D)machineConfigure.mk
+  -include $(MACHINE_MK)$(D)machineConfigure.mk
 endif
 
 #######################################
 # include openj9 specific settings
 #######################################
 ifeq ($(JDK_IMPL), $(filter $(JDK_IMPL),openj9 ibm))
-	include $(TEST_ROOT)$(D)TKG$(D)openj9Settings.mk
+  include $(TEST_ROOT)$(D)TKG$(D)openj9Settings.mk
 endif
 
 #######################################
@@ -296,9 +292,9 @@ teardown_%: testEnvTeardown
 	@$(ECHO)
 
 ifndef JCL_VERSION
-export JCL_VERSION:=latest
+  export JCL_VERSION:=latest
 else
-export JCL_VERSION:=$(JCL_VERSION)
+  export JCL_VERSION:=$(JCL_VERSION)
 endif
 
 # Define the EXCLUDE_FILE to be used for temporarily excluding failed tests.
@@ -308,13 +304,13 @@ export EXCLUDE_FILE:=$(TEST_ROOT)$(D)TestConfig$(D)resources$(D)excludes$(D)$(JC
 # TODO: https://github.com/eclipse-openj9/openj9/issues/12811
 OPENDJK_METHODHANDLES_ENABLED?=$(shell $(JAVA_COMMAND) -XshowSettings:properties -version 2>&1 | grep 'openjdk.methodhandles = true')
 ifneq (,$(findstring true,$(OPENDJK_METHODHANDLES_ENABLED)))
-	export EXCLUDE_FILE:=$(EXCLUDE_FILE),$(TEST_ROOT)$(D)TestConfig$(D)resources$(D)excludes$(D)feature_ojdkmh_exclude.txt
+  export EXCLUDE_FILE:=$(EXCLUDE_FILE),$(TEST_ROOT)$(D)TestConfig$(D)resources$(D)excludes$(D)feature_ojdkmh_exclude.txt
 else
-	# Issue to track excluded tests in x86-64_linux_vt_standard build: https://github.com/eclipse-openj9/openj9/issues/12878
-	VALUE_TYPE_STANDARD_BUILD?=$(shell $(JAVA_COMMAND) -version 2>&1 | grep 'vtstandard')
-	ifneq (,$(findstring vtstandard,$(VALUE_TYPE_STANDARD_BUILD)))
-		export EXCLUDE_FILE:=$(EXCLUDE_FILE),$(TEST_ROOT)$(D)TestConfig$(D)resources$(D)excludes$(D)feature_vtstandard_exclude.txt
-	endif
+  # Issue to track excluded tests in x86-64_linux_vt_standard build: https://github.com/eclipse-openj9/openj9/issues/12878
+  VALUE_TYPE_STANDARD_BUILD?=$(shell $(JAVA_COMMAND) -version 2>&1 | grep 'vtstandard')
+  ifneq (,$(findstring vtstandard,$(VALUE_TYPE_STANDARD_BUILD)))
+    export EXCLUDE_FILE:=$(EXCLUDE_FILE),$(TEST_ROOT)$(D)TestConfig$(D)resources$(D)excludes$(D)feature_vtstandard_exclude.txt
+  endif
 endif
 endif
 
@@ -330,7 +326,7 @@ TEMPRESULTFILE=$(TESTOUTPUT)$(D)TestTargetResult
 PLATFROMFILE=$(TEST_ROOT)$(D)TKG$(D)resources$(D)buildPlatformMap.properties
 
 ifndef DIAGNOSTICLEVEL
-export DIAGNOSTICLEVEL:=failure
+  export DIAGNOSTICLEVEL:=failure
 endif
 
 rmResultFile:

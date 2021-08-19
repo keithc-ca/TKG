@@ -17,7 +17,7 @@
 D = /
 
 ifndef TEST_ROOT
-	TEST_ROOT := $(shell pwd)$(D)..
+  TEST_ROOT := $(shell pwd)$(D)..
 endif
 
 include settings.mk

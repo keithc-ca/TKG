@@ -30,7 +30,7 @@ MKTREE = mkdir -p
 SUBDIRS = ..
 
 ifndef TEST_ROOT
-	TEST_ROOT := $(shell pwd)$(D)..
+  TEST_ROOT := $(shell pwd)$(D)..
 endif
 
 _TESTTARGET = $(firstword $(MAKECMDGOALS))

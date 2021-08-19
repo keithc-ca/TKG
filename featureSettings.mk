@@ -13,15 +13,15 @@
 ##############################################################################
 
 ifneq (,$(findstring AOT,$(TEST_FLAG)))
-export TR_silentEnv=1
-export TR_Options=forceAOT
-export TR_OptionsAOT=forceAOT
-AOT_OPTIONS = -Xshareclasses:name=$@ -Xscmx400M -Xscmaxaot256m
-ifndef TEST_ITERATIONS
-TEST_ITERATIONS = 2
-endif
+  export TR_silentEnv=1
+  export TR_Options=forceAOT
+  export TR_OptionsAOT=forceAOT
+  AOT_OPTIONS = -Xshareclasses:name=$@ -Xscmx400M -Xscmaxaot256m
+  ifndef TEST_ITERATIONS
+    TEST_ITERATIONS = 2
+  endif
 endif
 
 ifndef TEST_ITERATIONS
-TEST_ITERATIONS = 1
+  TEST_ITERATIONS = 1
 endif
