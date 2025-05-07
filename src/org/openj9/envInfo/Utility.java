@@ -1,3 +1,16 @@
+/*******************************************************************************
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*******************************************************************************/
 package org.openj9.envInfo;
 
 import java.io.FileOutputStream;
@@ -9,19 +22,18 @@ import java.nio.charset.Charset;
 
 public class Utility {
 
-    public static Writer writer;
-
-    public static Writer getWriterObject(int jdkVersion, String SpecInfo, String fileName) {
+	public static Writer getWriterObject(int jdkVersion, String SpecInfo, String fileName) {
 		try {
-			if (SpecInfo.toLowerCase().contains("zos") && (jdkVersion >= 21)) {
-				writer = new OutputStreamWriter(new FileOutputStream(fileName, true), Charset.forName("IBM-1047"));
+			if ((jdkVersion >= 21) && SpecInfo.toLowerCase().contains("zos")) {
+				return new OutputStreamWriter(new FileOutputStream(fileName, true), Charset.defaultCharset());
 			} else {
-				writer = new FileWriter(fileName, true);
+				return new FileWriter(fileName, true);
 			}
-		} catch(IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		return writer;
+		return null;
 	}
+
 }
