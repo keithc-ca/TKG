@@ -65,13 +65,14 @@ def test_rerun_helper(target, expected_ignore_on_rerun_list, expected_success):
 # validate empty JVM_OPTIONS still honours variation JVM options
 def test_empty_jvm_options_uses_variation():
     buildList = "TKG/examples/rerun"
+    expected_variation_option = "-Xmx1024m"
     command = "JVM_OPTIONS=\"\" make _testIgnoreOnRerunSubDir_1"
     print(f"\t{command}")
     result = subprocess.run(f"{EXPORT_BUILDLIST}={buildList}; {CD_TKG}; {MAKE_CLEAN}; {MAKE_COMPILE}; {command}", stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True, check=False)
 
     stdout = result.stdout.decode()
-    jvm_options_line = re.search(r"JVM_OPTIONS:\s*(.*)", stdout)
-    if jvm_options_line is not None and "-Xmx1024m" in jvm_options_line.group(1):
+    jvm_options_line = re.search(r"JVM_OPTIONS:\s*(.+?)(?:\n|$)", stdout)
+    if jvm_options_line is not None and expected_variation_option in jvm_options_line.group(1):
         print("\tEmpty JVM_OPTIONS override check successful!")
         return True
 
